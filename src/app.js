@@ -1,12 +1,5 @@
 import express from 'express'
-
-const operacionCompleja = () => {
-    let result = 0
-    for (let index = 0; index < 5e9; index++) {
-        result += index
-    }
-    return result
-}
+import { fork } from 'child_process'
 
 const app = express()
 
@@ -15,10 +8,11 @@ app.get('/simple', (req, res) => {
 })
 
 app.get('/complex', (req, res) => {
-    const result = operacionCompleja()
-    // const result = 10
-    res.json({ status: 'success', payload: result })
-    // res.send(result)
+    // const result = operacionCompleja()
+    const child = fork('./src/utils.js')
+    child.on('message', result => {
+        res.json({ status: 'success', payload: result })
+    })
 })
 
 app.listen(8080, () => console.log('Server Up!'))
